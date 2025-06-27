@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Log2Console .NET 8"
+           Manufacturer="Originally by Rémy Baudet (Statyk7), .NET 8 upgrade 2025"
+           Version="2.0.0.0"
+           Language="1033"
+           UpgradeCode="A12B34C5-D678-9EF0-A123-456789ABCDEF"
+           Compressed="yes"
+           InstallerVersion="500">
+
+    <SummaryInformation
+      Manufacturer="Originally by Rémy Baudet (Statyk7), .NET 8 upgrade 2025"
+      Description="Log2Console .NET 8 - Advanced log message viewer"
+      Keywords="Logging, Debug, .NET, Log4Net, NLog, Serilog" />
+
+    <!-- Media and properties -->
+    <MediaTemplate EmbedCab="yes" />
+
+    <Property Id="APPLICATIONROOTDIRECTORY" Value="Log2Console" />
+    <Property Id="ARPPRODUCTICON" Value="Log2ConsoleIcon" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/log2console" />
+    <Property Id="ARPNOREPAIR" Value="yes" />
+    <Property Id="ARPNOMODIFY" Value="yes" />
+
+    <!-- Check for .NET 8 Desktop Runtime -->
+    <Property Id="NETDESKTOP8">
+      <RegistrySearch Id="CheckNetDesktop8" Root="HKLM"
+                      Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\Microsoft.WindowsDesktop.App"
+                      Name="8.0" Type="raw" />
+    </Property>
+
+    <!-- Launch condition for .NET 8 -->
+    <Launch Condition="NETDESKTOP8"
+            Message="This application requires .NET 8 Desktop Runtime. Please install it from https://dotnet.microsoft.com/download/dotnet/8.0" />
+
+    <!-- Features -->
+    <Feature Id="MainFeature"
+             Title="Log2Console Application"
+             Description="Core Log2Console application"
+             Level="1">
+
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="ApplicationDLLs" />
+      <ComponentRef Id="Documentation" />
+      <ComponentRef Id="ProgramMenuShortcuts" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <!-- Directory structure -->
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="Log2Console">
+        <Directory Id="RESOURCESFOLDER" Name="res" />
+        <Directory Id="RUNTIMESFOLDER" Name="runtimes" />
+        <!-- Localization folders -->
+        <Directory Id="CS_FOLDER" Name="cs" />
+        <Directory Id="DE_FOLDER" Name="de" />
+        <Directory Id="ES_FOLDER" Name="es" />
+        <Directory Id="FR_FOLDER" Name="fr" />
+        <Directory Id="IT_FOLDER" Name="it" />
+        <Directory Id="JA_FOLDER" Name="ja" />
+        <Directory Id="KO_FOLDER" Name="ko" />
+        <Directory Id="PL_FOLDER" Name="pl" />
+        <Directory Id="PTBR_FOLDER" Name="pt-BR" />
+        <Directory Id="RU_FOLDER" Name="ru" />
+        <Directory Id="TR_FOLDER" Name="tr" />
+        <Directory Id="ZHHANS_FOLDER" Name="zh-Hans" />
+        <Directory Id="ZHHANT_FOLDER" Name="zh-Hant" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Log2Console" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="DesktopFolder" />
+
+    <!-- Components -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <!-- Main executable -->
+      <Component Id="MainExecutable" Guid="B12C34D5-E678-9AB0-C123-456789ABCDEF">
+        <File Id="Log2ConsoleExe"
+              Source="../output/Log2Console-2.0.0-NET8/Log2Console.exe"
+              KeyPath="yes" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\Log2Console"
+                       Name="InstallPath"
+                       Type="string"
+                       Value="[INSTALLFOLDER]" />
+      </Component>
+
+      <!-- Essential DLLs -->
+      <Component Id="ApplicationDLLs" Guid="C23D45E6-F789-0AB1-D234-56789ABCDEF0">
+        <File Source="../output/Log2Console-2.0.0-NET8/Log2Console.dll" />
+        <File Source="../output/Log2Console-2.0.0-NET8/ICSharpCode.TextEditor.dll" />
+        <File Source="../output/Log2Console-2.0.0-NET8/RichTextBoxLinks.dll" />
+        <File Source="../output/Log2Console-2.0.0-NET8/log4net.dll" />
+        <File Source="../output/Log2Console-2.0.0-NET8/Log2Console.runtimeconfig.json" />
+        <File Source="../output/Log2Console-2.0.0-NET8/Log2Console.deps.json" />
+      </Component>
+
+      <!-- Documentation -->
+      <Component Id="Documentation" Guid="D34E56F7-8901-2BC3-E456-789ABCDEF012">
+        <File Source="../output/Log2Console-2.0.0-NET8/RELEASE_NOTES.md" />
+        <File Source="../README.md" Name="README.md" />
+        <File Source="../license.md" Name="LICENSE.md" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Program Menu Shortcuts -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ProgramMenuShortcuts" Guid="E45F67A8-9012-3CD4-F567-89ABCDEF0123">
+        <Shortcut Id="StartMenuLog2Console"
+                  Name="Log2Console .NET 8"
+                  Description="Advanced log message viewer for .NET applications"
+                  Target="[INSTALLFOLDER]Log2Console.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <Shortcut Id="UninstallProduct"
+                  Name="Uninstall Log2Console"
+                  Description="Uninstall Log2Console .NET 8"
+                  Target="[System64Folder]msiexec.exe"
+                  Arguments="/x [ProductCode]" />
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\Log2Console\Shortcuts"
+                       Name="ProgramMenu"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Desktop Shortcut -->
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="F5607B89-0123-4DE5-6789-ABCDEF012345">
+        <Shortcut Id="DesktopLog2Console"
+                  Name="Log2Console .NET 8"
+                  Description="Advanced log message viewer for .NET applications"
+                  Target="[INSTALLFOLDER]Log2Console.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\Log2Console\Shortcuts"
+                       Name="Desktop"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Icon -->
+    <Icon Id="Log2ConsoleIcon" SourceFile="../output/Log2Console-2.0.0-NET8/Log2Console.exe" />
+
+    <!-- Simple UI without external dependencies -->
+    <!-- License file included in documentation -->
+
+  </Package>
+</Wix>
